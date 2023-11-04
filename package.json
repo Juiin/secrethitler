@@ -1,0 +1,16 @@
+{
+  "name": "secrethitler",
+  "version": "1.0.0",
+  "main": "hitler.js",
+  "dependencies": {
+	"express": "^4.13.4",
+	"mysql": "^2.12.0",
+	"socket.io": "^1.4.6"
+  },
+  "scripts": {
+    "start": "node hitler.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

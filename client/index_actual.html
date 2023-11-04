@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet"  href="/client/style.css" >
+        <title>Secret Hitler</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="client/img/juin.ico">
+        <script src="http://cdn.socket.io/socket.io-1.4.5.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script src="/client/sorttable.js"></script>
+    </head>
+    
+    <body>
+        <div id="content">
+            <div id="signIn">
+                <h1 style="text-align: center; font-family: Courier New;">Login</h1>
+                <div id="login">
+                    Username: <input id="username" type="text">
+                    <button id="signInButton">Login</button> 
+                </div>
+                <hr>
+                <div id="leaderboards">
+                    <h1 style="text-align: center; font-family: Courier New;">Leaderboards</h1>
+                    <table id="lbTable">
+                      <tr>
+                        <th class="sorttable_nosort">Name</th>
+                        <th>Win</th>
+                        <th>Loss</th>
+                        <th>Ratio</th>
+                        <th>Liberal Ratio</th>
+                        <th>Fascist Ratio</th>
+                      </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div id="lobby" style="display: none;">
+                <div id="roomList">
+                    
+                </div>
+                <div id="currentRoom">
+                    
+                </div>
+                <div id="chatDiv">
+                    <div id="chatText"></div>
+                    <div id="chatUser"></div>
+                    <form id="chatForm" >
+			<input id="chatInput" type="text" style="width:470px;float:left;">
+                    </form>
+                    <button id="createRoomButton" onclick="openNav()">Create Room!</button>
+                    <button id="startGameButton">Start Game!</button>
+                    <button id="leaveRoomButton">Leave Room</button>
+                </div>
+                
+            </div>
+
+            <div id="gameDiv" style="display: none;">
+                <img src="client/img/confetti.gif" id="overlayImage"/>
+                <div id="instructions"></div>
+                <div id="topPlayers">
+                    <div class="playerBox" id="player_1">
+                        <img src="client/img/unknown.png" id="player_img_1" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_1" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_1"></div>
+                    </div>
+                    <div class="playerBox" id="player_3">
+                        <img src="client/img/unknown.png" id="player_img_3" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_3" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_3"></div>
+                    </div>
+                    <div class="playerBox" id="player_5">
+                        <img src="client/img/unknown.png" id="player_img_5" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_5" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_5"></div>
+                    </div>
+                    <div class="playerBox" id="player_7">
+                        <img src="client/img/unknown.png" id="player_img_7" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_7" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_7"></div>
+                    </div>
+                    <div class="playerBox" id="player_9">
+                        <img src="client/img/unknown.png" id="player_img_9" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_9" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_9"></div>
+                    </div>
+                </div>
+                <div style="display:inline-block; ">
+                    
+                    <div id="leftText" style="height: 250px; width: 179px; text-align: center; position: relative; left: 0; top: 0; display: none"> 
+                        <img src="client/img/leftText.png"/>
+                        <div id="leftInnerText" style="position: absolute; top: 75px; left: 5px; font-size: 85%; width: 150px; font-family: Courier New;">
+                            
+                        </div>
+                    </div>
+                    <div id="drawPile" style="position: relative; left: 0; top: 0;">
+                        <img src="client/img/draw_pile.png" id="drawPileImg" alt="drawPile"/>
+                        <img id="drawPileCardImg" src="/client/img/policy_card.png" style="position: absolute; top: 18px; left: 20px; height:200px" alt="card"/>
+                        <h1 id="drawPileAmount" class="pileAmount">17</h1>
+                    </div>
+                </div>
+                <div id="board" style="position: relative; left: 0; top: 0;">
+                    <img src="client/img/56_board.png" id="board_img" alt="board"/>
+                    
+                    <img id="fascist_1" src="client/img/fascist.png" class="boardPolicyCards" alt="card">
+                    <img id="fascist_2" src="client/img/fascist.png" class="boardPolicyCards" alt="card" style="left: 165px">
+                    <img id="fascist_3" src="client/img/fascist.png" class="boardPolicyCards" alt="card" style="left: 260px">
+                    <img id="fascist_4" src="client/img/fascist.png" class="boardPolicyCards" alt="card" style="left: 360px">
+                    <img id="fascist_5" src="client/img/fascist.png" class="boardPolicyCards" alt="card" style="left: 455px">
+                    <img id="fascist_6" src="client/img/fascist.png" class="boardPolicyCards" alt="card" style="left: 550px">
+                    <img id="liberal_1" src="client/img/liberal.png" class="boardPolicyCards" alt="card" style="left: 115px; top: 310px">
+                    <img id="liberal_2" src="client/img/liberal.png" class="boardPolicyCards" alt="card" style="left: 212px; top: 310px">
+                    <img id="liberal_3" src="client/img/liberal.png" class="boardPolicyCards" alt="card" style="left: 309px; top: 310px">
+                    <img id="liberal_4" src="client/img/liberal.png" class="boardPolicyCards" alt="card" style="left: 406px; top: 310px">
+                    <img id="liberal_5" src="client/img/liberal.png" class="boardPolicyCards" alt="card" style="left: 503px; top: 310px">
+                    
+                    <img id="electionTracker_1" class="electionTracker" src="client/img/election_tracker.png" alt="tracker" style="left: 233px;">
+                    <img id="electionTracker_2" class="electionTracker" src="client/img/election_tracker.png" alt="tracker" style="left: 298px;">
+                    <img id="electionTracker_3" class="electionTracker" src="client/img/election_tracker.png" alt="tracker" style="left: 363px;">
+                    
+                </div>
+                <div style="display:inline-block; ">
+                    <div id="rightText" style="height: 250px; width: 179px; text-align: center; position: relative; left: 0; top: 0; "> 
+                            <img src="client/img/rightText.png"/>
+                            <div id="rightInnerText" style="position: absolute; top: 90px; left: 8px; font-size: 100%; width: 150px; font-family: Courier New;">
+
+                            </div>
+                            
+                    </div>
+                    <div id="discardPile" style="position: relative; left: 0; top: 0;">
+                        <img src="client/img/discard_pile.png" id="discardPileImg" alt="discardPile"/>
+                        <img id="discardPileCardImg" src="/client/img/policy_card.png" style="position: absolute; top: 18px; left: 20px; height:200px; display: none" alt="pile"/>
+                        <h1 id="discardPileAmount" class="pileAmount">0</h1>
+                    </div>
+                </div>
+                <div id="bottomPlayers">
+                    <div class="playerBox" id="player_2">
+                        <img src="client/img/unknown.png" id="player_img_2" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_2" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_2"></div>
+                    </div>
+                    <div class="playerBox" id="player_4">
+                        <img src="client/img/unknown.png" id="player_img_4" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_4" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_4"></div>
+                    </div>
+                    <div class="playerBox" id="player_6">
+                        <img src="client/img/unknown.png" id="player_img_6" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_6" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_6"></div>
+                    </div>
+                    <div class="playerBox" id="player_8">
+                        <img src="client/img/unknown.png" id="player_img_8" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_8" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_8"></div>
+                    </div>
+                    <div class="playerBox" id="player_10">
+                        <img src="client/img/unknown.png" id="player_img_10" class="playerImgs" alt="player"/>
+                        <img src="client/img/unknownVote.png" id="player_img_vote_10" alt="player" class="playerImgs"/>
+                        <div class="playerText" id="player_text_10"></div>
+                    </div>
+                </div>
+                
+                <div id="chat" style="display:inline-block">
+                    <div id="chatTextIngame"></div>
+                    <div id="hand" style="display: inline-block">
+                        <div id="jaNeinCards" style="display: none;">
+                            <img id="ja" src="client/img/ja.png" class="jaNeinCardsClass" alt="card">
+                            <img id="nein" src="client/img/nein.png" class="jaNeinCardsClass" alt="card">
+                        </div>
+
+                        <div id="choosePolicyCards" style="display: none">
+                            <img id="choosePolicy_1" src="client/img/liberal.png" class="choosePolicyClass" alt="card">
+                            <img id="choosePolicy_2" src="client/img/fascist.png" class="choosePolicyClass" alt="card">
+                            <img id="choosePolicy_3" src="client/img/liberal.png" class="choosePolicyClass" alt="card">
+                            <img id="requestVeto" src="client/img/request_veto.png" class="choosePolicyClass" alt="card">
+                        </div>
+                    </div>
+                    <form id="chatFormIngame" >
+			<input id="chatInputIngame" type="text" style="width:470px;float:left;">
+                    </form>
+                </div>
+                <button id="newGameButton" style="display: none" onclick="newGameOnClick()">New Game!</button>
+            </div>
+            
+            <!-- Create Room Overlay -->
+            <div id="myNav" class="overlay">
+                <!-- Button to close the overlay navigation -->
+                <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+
+                <!-- Overlay content -->
+                <div class="overlay-content">
+                    Room Name: <input id="roomNameInput" type="text"> <br>
+                    Room Password(optional): <input id="roomPasswordInput" type="text"> <br>
+                    <button id="createRoomFinal" onclick="createRoom()"> Create Room! </button>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            var socket = io();
+            //Debug
+            socket.on("evalAnswer",function(data){
+                console.log(data);
+            });
+            
+            //Signing in///////////////////////////////////////////////////
+            var signIn = document.getElementById("signIn");
+            var lobby = document.getElementById("lobby");
+            var username = document.getElementById("username");
+            var signInButton = document.getElementById("signInButton"); 
+            
+            if(signIn.style.display !== "none"){
+                httpGetAsync("http://dreamlo.com/lb/57b739d48af6030b20b12111/pipe",function(data){
+                    var leaderboardData = data;
+                    var lbTable = document.getElementById("lbTable");
+                    
+                    var users = leaderboardData.split("\n");
+                    users.splice(-1,1);
+                    for(var i=0;i<users.length;i++){
+                        var row = lbTable.insertRow(-1);
+                        var userData = users[i].split("|");
+                        
+                        var cell_1 = row.insertCell(0);
+                        cell_1.innerHTML = userData[0];
+                        var cell_2 = row.insertCell(1);
+                        cell_2.innerHTML = userData[1];
+                        var cell_3 = row.insertCell(2);
+                        cell_3.innerHTML = userData[2];
+                        var cell_4 = row.insertCell(3);
+                        cell_4.innerHTML = Math.round(parseInt(userData[1]) / (parseInt(userData[1]) + parseInt(userData[2])) * 100) + "%"; 
+                        
+                        var factionStats = userData[3].split("-");
+                        var cell_5 = row.insertCell(4);
+                        cell_5.innerHTML = Math.round(parseInt(factionStats[0]) / (parseInt(factionStats[0]) + parseInt(factionStats[1])) * 100) + "%";
+                        var cell_6 = row.insertCell(5);
+                        cell_6.innerHTML = Math.round(parseInt(factionStats[2]) / (parseInt(factionStats[2]) + parseInt(factionStats[3])) * 100) + "%";
+                    }
+                    sorttable.makeSortable(lbTable);
+                    var myTH = document.getElementsByTagName("th")[3];
+                    sorttable.innerSortFunction.apply(myTH, []);
+                });
+            }
+            
+            var myUsername = "";       
+            signInButton.onclick = function(){
+                if(username.value.length > 10){
+                    alert("Max Username Length is 10.");
+                    return;
+                }
+                if(typeof(username.value.includes) === "function"){
+                    if(username.value.includes("yyy") || username.value.includes("YYY")){
+                        alert("Abgelehnt!");
+                        return;
+                    }
+                }
+                
+                if(username.value !== ""){
+                        socket.emit("signIn",{username:username.value});
+                        myUsername = username.value;
+                }
+                else alert("Please enter a Username!");
+            };
+            //Sign In with Enter
+            username.addEventListener("keyup", function(event) {
+                event.preventDefault();
+                if (event.keyCode === 13) {
+                        signInButton.click();
+                }
+            });
+
+            //Listen to Response
+            socket.on("signInResponse",function(data){
+                    if(data.success){
+                            signIn.style.display = "none";
+                            lobby.style.display = "inline-block";
+                    } else
+                            alert("Username already in use!");
+            });
+            
+            //Chat////////////////////////////////////////////////////////
+            var chatText = document.getElementById("chatText");
+            var chatInput = document.getElementById("chatInput");
+            var chatForm = document.getElementById("chatForm");
+            var chatUser = document.getElementById("chatUser");
+            var chatTextIngame = document.getElementById("chatTextIngame");
+            var chatFormIngame = document.getElementById("chatFormIngame");
+            var chatInputIngame = document.getElementById("chatInputIngame");
+
+
+            socket.on("addToChat",function(data){
+                if(lobby.style.display === "none"){
+                    chatTextIngame.innerHTML += "<div>" + data + "</div>";
+                    chatTextIngame.scrollTop = chatTextIngame.scrollHeight;
+                }else{
+                    chatText.innerHTML += "<div>" + data + "</div>";
+                    chatText.scrollTop = chatText.scrollHeight;
+                }
+            });
+            
+            chatForm.onsubmit = function(e){
+                e.preventDefault();
+                if(chatInput.value[0] === "/")
+                        socket.emit("evalServer",chatInput.value.slice(1));
+                else if(chatInput.value !== "")
+                        socket.emit("chatToEveryone",chatInput.value);
+                chatInput.value = "";
+            };
+            chatFormIngame.onsubmit = function(e){
+                e.preventDefault();
+                if(chatInputIngame.value[0] === "/")
+                        socket.emit("evalServer",chatInputIngame.value.slice(1));
+                else if(chatInputIngame.value !== "")
+                        socket.emit("chatToEveryone",chatInputIngame.value);
+                chatInputIngame.value = "";
+            }
+
+            //User Chat
+            socket.on("addToUserChat",function(data){
+                chatUser.innerHTML += "<div>" + data + "</div>";
+            });
+
+            socket.on("clearUserChat",function(){
+                chatUser.innerHTML = "";
+            });
+            
+            //ROOM LIST
+            var roomList = document.getElementById("roomList");
+            var currentRoom = document.getElementById("currentRoom");
+            var createRoomButton = document.getElementById("createRoomButton");
+            var startGameButton = document.getElementById("startGameButton");
+            var leaveRoomButton = document.getElementById("leaveRoomButton");
+            
+            var joinRoom = function(data){
+                socket.emit("joinRoom", data, "");
+            };
+            
+            socket.on("joinRoom",function(data, pw){
+                socket.emit("joinRoom",data,pw);
+            });
+            
+            socket.on("enterRoomPassword",function(data){
+                var pw = window.prompt("Please enter the Password.", "");
+                if(pw != null){
+                    socket.emit("joinRoom", data , pw);
+                }
+            });
+            
+            socket.on("toggleRoomList",function(data){
+                if(data === "default"){
+                    roomList.style.display = "inline-block";
+                    createRoomButton.style.display = "inline-block";
+                    startGameButton.style.display = "none";
+                    leaveRoomButton.style.display = "none";
+                }
+                else{
+                    roomList.style.display = "none";
+                    createRoomButton.style.display = "none";
+                    startGameButton.style.display = "inline-block";
+                    leaveRoomButton.style.display = "inline-block";
+                }
+            });
+            
+            var ROOM_LIST = [];
+            
+            socket.on("fillRoomList",function(data){
+               ROOM_LIST = data;
+               var passwordString = "";
+               roomList.innerHTML = ""; 
+               for(var i in data){
+                   if(data[i].isOpen && i != 0){
+                        if(data[i].password){
+                            passwordString = " | Private";
+                        }else{
+                            passwordString = "";
+                        }
+                        roomList.innerHTML += "<div> Name: " + data[i].name + passwordString + " | Players: " + data[i].currentPlayerAmount + "/" + data[i].maxPlayers + " <button type='button' onclick='joinRoom(" +   i  + ")' >Join!</button> <hr> </div>";
+                    }
+               }
+               if(roomList.innerHTML == ""){
+                   roomList.innerHTML = "...no rooms currently open...";
+               }
+           });
+            
+            socket.on("refreshRoomName",function(data){
+                currentRoom.innerHTML = "Current Room: " + data;
+            });
+            
+            var createRoom = function(){
+                var name = document.getElementById("roomNameInput");
+                var pw = document.getElementById("roomPasswordInput");
+                
+                socket.emit("checkRoomNames",name.value,pw.value);
+            };
+            
+            socket.on("createRoomFinal",function(data,name,pw){
+                if(data === false){
+                    alert("Room Name already in use!");
+                }else{
+                    socket.emit("createRoom",name,pw);
+                    closeNav();
+                }
+            });
+            
+            //Create Room Overlay
+            /* Open when someone clicks on the span element */
+            function openNav() {
+                document.getElementById("myNav").style.width = "100%";
+                document.getElementById("roomNameInput").value = myUsername + "'s Room";
+            }
+
+            /* Close when someone clicks on the "x" symbol inside the overlay */
+            function closeNav() {
+                document.getElementById("myNav").style.width = "0%";
+            }
+            
+            var gameDiv = document.getElementById("gameDiv");
+            
+            startGameButton.onclick = function(){
+                socket.emit("startGame");
+            };
+            
+            socket.on("startGame",function(){
+                lobby.style.display = "none";
+                gameDiv.style.display = "inline-block";
+            });
+            
+            leaveRoomButton.onclick = function(){
+              joinRoom(0);
+            };
+            
+            //GAME
+            socket.on("refreshBoard",function(room){
+                var me;
+                var meID = -1;
+                var president;
+                var chancellor;
+                var playerAmount = 0;
+                for(var i=0;i<room.playingPlayers.length;i++){
+                    if(room.playingPlayers[i].name === myUsername){
+                        me = room.playingPlayers[i];
+                        meID = i;
+                    }
+                    if(room.playingPlayers[i].president){
+                        president = room.playingPlayers[i].name;
+                    }
+                    if(room.playingPlayers[i].chancellor){
+                        chancellor = room.playingPlayers[i].name;
+                    }
+                    playerAmount++;
+                }
+               
+                //Stuff to update for everyone
+                //Board
+                var boardImg = document.getElementById("board_img");
+                if(room.playingPlayers.length <= 6){
+                    if(boardImg.src !== "client/img/56_board.png"){
+                        boardImg.src = "client/img/56_board.png";
+                    }
+                }else if(room.playingPlayers.length === 7 || room.playingPlayers.length === 8){
+                    if(boardImg.src !== "client/img/78_board.png"){
+                        boardImg.src = "client/img/78_board.png";
+                    }
+                }else if(room.playingPlayers.length >= 9){
+                    if(boardImg.src !== "client/img/910_board.png"){
+                        boardImg.src = "client/img/910_board.png";
+                    }
+                }
+                //Players
+                for(var i=1;i<=10;i++){
+                    var playerDiv = document.getElementById("player_"+(i));
+                    playerDiv.style.display = "none";
+                }
+                //Player Text
+                var playerIDSequence = [];
+                var cur = 0;
+                for(var i=0;i<room.playingPlayers.length;i++){
+                    playerIDSequence.push(cur);
+                    if((room.playingPlayers.length % 2) === 0){ //is even
+                        if((cur+2) === room.playingPlayers.length-1){
+                          cur+=2;
+                        }else if(cur === (room.playingPlayers.length-1)){
+                          cur=0;
+                        }else{
+                          cur = (cur+2) % (room.playingPlayers.length-1);
+                        }
+                    }else{
+                    cur = (cur+2) % room.playingPlayers.length;
+                    }
+                }
+                for(var i=0;i<room.playingPlayers.length;i++){
+                    
+                    var playerDivText = document.getElementById("player_text_"+(playerIDSequence[i]+1));
+                    
+                    
+                    var playerDivString = "";
+                    if(room.playingPlayers[playerIDSequence[i]].dead){
+                        playerDivString += "<s>" + room.playingPlayers[playerIDSequence[i]].name + "</s>";
+                    }else{
+                        playerDivString += room.playingPlayers[playerIDSequence[i]].name;
+                    }
+                    playerDivString += "[" + (i+1) + "]";
+                    
+                    if(room.playingPlayers[playerIDSequence[i]].notHitlerConfirmed){
+                        playerDivString += "</br>not Hitler";
+                    }
+                    playerDivText.innerHTML = playerDivString;
+                }
+                //Other Player Stuff
+                for(var i=0;i<room.playingPlayers.length;i++){
+                    var playerDiv = document.getElementById("player_"+(i+1));
+                    playerDiv.style.display = "inline-block";
+                    var playerDivText = document.getElementById("player_text_"+(i+1));
+                    
+                    
+                    
+                    //President
+                    if(room.playingPlayers[i].previousPresident){
+                        playerDiv.style.borderColor = "blue";
+                    }else if(room.playingPlayers[i].previousChancellor){
+                        playerDiv.style.borderColor = "salmon";
+                    }else{
+                        playerDiv.style.borderColor = "black";
+                    }
+                    
+                    //Has Voted
+                    var voteImg = document.getElementById("player_img_vote_"+(i+1));
+                    if(room.state === "voting"){
+                        voteImg.src = "client/img/unknownVote.png";
+                    }else{
+                        if(room.playingPlayers[i].vote === "ja"){
+                            voteImg.src = "client/img/ja.png";
+                        }else if(room.playingPlayers[i].vote === "nein"){
+                            voteImg.src = "client/img/nein.png";
+                        }
+                    }
+                    if(room.playingPlayers[i].vote !== ""){
+                        playerDivText.style.color = "lightseagreen";
+                    }else{
+                        playerDivText.style.color = "black";
+                    }
+                    if(room.playingPlayers[i].dead){
+                        playerDivText.style.color = "ghostwhite";
+                    }
+                    
+                }
+                
+                
+                //Card Piles
+                var drawPileAmount = document.getElementById("drawPileAmount");
+                var discardPileAmount = document.getElementById("discardPileAmount");
+                var drawPileCardImg = document.getElementById("drawPileCardImg");
+                var discardPileCardImg = document.getElementById("discardPileCardImg");
+                
+                if(room.drawPile === 0){
+                    drawPileCardImg.style.display = "none";
+                }else{
+                    drawPileCardImg.style.display = "inline-block";
+                }
+                if(room.discardPile === 0){
+                    discardPileCardImg.style.display = "none";
+                }else{
+                    discardPileCardImg.style.display = "inline-block";
+                }
+                drawPileAmount.innerHTML = room.drawPile;
+                discardPileAmount.innerHTML = room.discardPile;
+                
+                //Enacted Policies
+                for(var i=1;i<=5;i++){
+                    document.getElementById("liberal_"+i).style.display = "none";
+                }
+                for(var i=1;i<=6;i++){
+                    document.getElementById("fascist_"+i).style.display = "none";
+                }
+                for(var i=1;i<=room.liberalEnacted;i++){
+                    document.getElementById("liberal_"+i).style.display = "inline-block";
+                }
+                for(var i=1;i<=room.fascistEnacted;i++){
+                    document.getElementById("fascist_"+i).style.display = "inline-block";
+                }
+                //Election Tracker
+                for(var i=1;i<=3;i++){
+                    document.getElementById("electionTracker_"+i).style.display = "none";
+                }
+                if(room.electionTracker > 0){
+                    for(var i=1;i<=room.electionTracker;i++){
+                        document.getElementById("electionTracker_"+i).style.display = "inline-block";
+                    }
+                }
+                //Left News
+                document.getElementById("leftText").style.display = "none";
+                if(room.liberalEnacted > 0 || room.fascistEnacted > 0){
+                    document.getElementById("leftText").style.display = "block";
+                }
+                //Right News
+                document.getElementById("rightText").style.display = "none";
+                var anyoneDead = false;
+                for(var i=0;i<room.playingPlayers.length;i++){
+                    if(room.playingPlayers[i].dead){
+                        anyoneDead = true;
+                    }
+                }
+                if(anyoneDead){
+                    document.getElementById("rightText").style.display = "block";
+                }
+                
+                //Player Specific Stuff
+                //Role Images
+                if(me !== undefined){ //I'm Playing
+                    if((me.hitler && room.playingPlayers.length >= 7) || me.fascist === false){
+                        for(var i=0;i<room.playingPlayers.length;i++){
+                            var playerDivImg = document.getElementById("player_img_"+(i+1));
+                            if(me.name === room.playingPlayers[i].name){
+                                if(me.hitler){
+                                    playerDivImg.src = "/client/img/hitler.png";
+                                }else{
+                                    playerDivImg.src = "/client/img/liberal_player.png";
+                                }
+                            }else{
+                                playerDivImg.src = "/client/img/unknown.png";
+                            }
+
+                        }
+                    }else if(me.fascist){
+                        for(var i=0;i<room.playingPlayers.length;i++){
+                            var playerDivImg = document.getElementById("player_img_"+(i+1));
+                            if(room.playingPlayers[i].hitler){
+                                playerDivImg.src = "/client/img/hitler.png";
+                            }else if(room.playingPlayers[i].fascist){
+                                playerDivImg.src = "/client/img/fascist_player.png";
+                            }else{
+                                playerDivImg.src = "/client/img/liberal_player.png";
+                            }
+                        }
+                    }
+                }
+                
+                //States
+                //Default Stuff I Change below
+                for(var i=0;i<room.playingPlayers.length;i++){
+                    document.getElementById("player_"+(i+1)).style.backgroundColor = "lightgray";
+                    document.getElementById("player_"+(i+1)).onclick = "";
+                }
+                document.getElementById("jaNeinCards").style.display = "none";
+                document.getElementById("ja").onclick = "";
+                document.getElementById("nein").onclick = "";
+                document.getElementById("choosePolicyCards").style.display = "none";
+                for(var i=0;i<3;i++){
+                    var choosePolicy = document.getElementById("choosePolicy_"+(i+1));
+                    choosePolicy.style.display = "none";
+                    choosePolicy.onclick = "";
+                }
+                document.getElementById("requestVeto").style.display = "none";
+                document.getElementById("requestVeto").onclick = "";
+                document.getElementById("newGameButton").style.display = "none";
+                document.getElementById("overlayImage").style.display = "none";
+                //Choosing Chancellor
+                var instructions = document.getElementById("instructions");
+                if(room.state === "choosingChancellor"){
+                    instructions.innerHTML = president + " is nominating a Chancellor.";
+                    if(me !== undefined){
+                        if(me.president){
+                            instructionsBlink();
+                            instructions.innerHTML = "Please select a Player to nominate them for Chancellorship.";
+                            for(var i=0;i<room.playingPlayers.length;i++){
+                                if(!room.playingPlayers[i].president && !room.playingPlayers[i].previousChancellor && !room.playingPlayers[i].dead){
+                                    if(room.playingPlayers.length > 5){
+                                        if(!room.playingPlayers[i].previousPresident){
+                                            //Eligible for Chancellor Selection
+                                            document.getElementById("player_"+(i+1)).style.backgroundColor = "lightgoldenrodyellow";
+                                            document.getElementById("player_"+(i+1)).onclick = function(){ chooseChancellor(this.id); } ;
+                                        }
+                                    }else{
+                                        //Eligible for Chancellor Selection
+                                        document.getElementById("player_"+(i+1)).style.backgroundColor = "lightgoldenrodyellow";
+                                        document.getElementById("player_"+(i+1)).onclick = function(){ chooseChancellor(this.id); } ;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }else if(room.state === "voting"){
+                    instructions.innerHTML = "Voting for President " + president + " and Chancellor " + chancellor + ".";
+                    if(me !== undefined){
+                        if(me.vote === "" && !me.dead){
+                            instructionsBlink();
+                            var jaNeinCards = document.getElementById("jaNeinCards");
+                            var ja = document.getElementById("ja");
+                            var nein = document.getElementById("nein");
+                            jaNeinCards.style.display = "inline-block";
+
+                            ja.onclick = function(){
+                                socket.emit("voted",meID,"ja");
+                                ja.onclick = "";
+                            };
+                            nein.onclick = function(){
+                                socket.emit("voted",meID,"nein");
+                                nein.onclick = "";
+                            };
+                        }
+                    }
+                }else if(room.state === "presidentSelectingCards"){
+                    instructions.innerHTML = president + " is discarding a Policy.";
+                    if(me !== undefined){
+                        if(me.president){
+                            instructionsBlink();
+                            instructions.innerHTML = "Please select the Policy you want to DISCARD.";
+                            var choosePolicyCards = document.getElementById("choosePolicyCards");
+                            choosePolicyCards.style.display = "inline-block";
+                            
+                            for(var i=0;i<3;i++){
+                                var choosePolicy = document.getElementById("choosePolicy_"+(i+1));
+                                choosePolicy.style.display = "inline-block";
+                                if(room.drawPileArray[i]){
+                                    choosePolicy.src = "client/img/liberal.png";
+                                }else{
+                                    choosePolicy.src = "client/img/fascist.png";
+                                }
+                            }
+                            document.getElementById("choosePolicy_1").onclick = function(){
+                                socket.emit("presidentDiscarded",0);
+                            };
+                            document.getElementById("choosePolicy_2").onclick = function(){
+                                socket.emit("presidentDiscarded",1);
+                            };
+                            document.getElementById("choosePolicy_3").onclick = function(){
+                                socket.emit("presidentDiscarded",2);
+                            };
+                        }
+                    }
+                }else if(room.state === "chancellorSelectingCards"){
+                    instructions.innerHTML = chancellor + " is choosing a Policy to enact.";
+                    if(me !== undefined){
+                        if(me.chancellor){
+                            instructionsBlink();
+                            instructions.innerHTML = "Please select the Policy you want to ENACT";
+                            var choosePolicyCards = document.getElementById("choosePolicyCards");
+                            choosePolicyCards.style.display = "inline-block";
+                            
+                            for(var i=0;i<2;i++){
+                                var choosePolicy = document.getElementById("choosePolicy_"+(i+1));
+                                choosePolicy.style.display = "inline-block";
+                                if(room.drawPileArray[i]){
+                                    choosePolicy.src = "client/img/liberal.png";
+                                }else{
+                                    choosePolicy.src = "client/img/fascist.png";
+                                }
+                            }
+                            document.getElementById("choosePolicy_1").onclick = function(){
+                                socket.emit("chancellorEnacted",0);
+                            };
+                            document.getElementById("choosePolicy_2").onclick = function(){
+                                socket.emit("chancellorEnacted",1);
+                            };
+                            if(room.fascistEnacted >= 5 && !room.justVetoed){
+                                document.getElementById("requestVeto").style.display = "inline-block";
+                                document.getElementById("requestVeto").onclick = function(){
+                                    socket.emit("requestVeto");
+                                };
+                            }
+                        }
+                    }
+                }else if(room.state === "gameover"){
+                    instructionsBlink();
+                    document.getElementById("overlayImage").style.display = "block";
+                    if(room.won === "liberal"){
+                        instructions.innerHTML = "Liberals Won!";
+                    }else if(room.won === "fascist"){
+                        instructions.innerHTML = "Fascists Won!";
+                    }
+                    for(var i=0;i<room.playingPlayers.length;i++){
+                        var playerDivImg = document.getElementById("player_img_"+(i+1));
+                        if(room.playingPlayers[i].hitler){
+                            playerDivImg.src = "/client/img/hitler.png";
+                        }else if(room.playingPlayers[i].fascist){
+                            playerDivImg.src = "/client/img/fascist_player.png";
+                        }else{
+                            playerDivImg.src = "/client/img/liberal_player.png";
+                        }
+                    }
+                    document.getElementById("newGameButton").style.display = "inline-block";
+                }else if(room.state === "lookAtTopThree"){
+                    instructions.innerHTML = president + " is looking at the next 3 Policies.";
+                    if(me !== undefined){
+                        if(me.president){
+                            instructionsBlink();
+                            instructions.innerHTML = "Click on any Policy Card to continue.";
+                            var choosePolicyCards = document.getElementById("choosePolicyCards");
+                            choosePolicyCards.style.display = "inline-block";
+                            
+                            for(var i=0;i<3;i++){
+                                var choosePolicy = document.getElementById("choosePolicy_"+(i+1));
+                                choosePolicy.style.display = "inline-block";
+                                if(room.drawPileArray[i]){
+                                    choosePolicy.src = "client/img/liberal.png";
+                                }else{
+                                    choosePolicy.src = "client/img/fascist.png";
+                                }
+                            }
+                            document.getElementById("choosePolicy_1").onclick = function(){
+                                socket.emit("lookAtTopThreeDone");
+                            };
+                            document.getElementById("choosePolicy_2").onclick = function(){
+                                socket.emit("lookAtTopThreeDone");
+                            };
+                            document.getElementById("choosePolicy_3").onclick = function(){
+                                socket.emit("lookAtTopThreeDone");
+                            };
+                        }
+                    }
+                }else if(room.state === "kill"){
+                    instructions.innerHTML = president + " is choosing a Player to execute.";
+                    if(me !== undefined){
+                        if(me.president){
+                            instructionsBlink();
+                            instructions.innerHTML = "Choose the Player you want to execute.";
+                            for(var i=0;i<room.playingPlayers.length;i++){
+                                if(!room.playingPlayers[i].president && !room.playingPlayers[i].dead){
+                                    //Eligible for Execution
+                                    document.getElementById("player_"+(i+1)).style.backgroundColor = "lightgoldenrodyellow";
+                                    document.getElementById("player_"+(i+1)).onclick = function(){ killPlayer(this.id); } ;
+                                }
+                            }
+                        }
+                    }
+                }else if(room.state === "pickPresident"){
+                    instructions.innerHTML = president + " is selecting the next President";
+                    if(me !== undefined){
+                        if(me.president){
+                            instructionsBlink();
+                            instructions.innerHTML = "Please select the next President.";
+                            for(var i=0;i<room.playingPlayers.length;i++){
+                                if(!room.playingPlayers[i].president && !room.playingPlayers[i].dead){
+                                    //Eligible for Execution
+                                    document.getElementById("player_"+(i+1)).style.backgroundColor = "lightgoldenrodyellow";
+                                    document.getElementById("player_"+(i+1)).onclick = function(){ selectPresident(this.id); } ;
+                                }
+                            }
+                        }
+                    }
+                }else if(room.state === "investigate"){
+                    instructions.innerHTML = president + " is selecting a Player to investigate";
+                    if(me !== undefined){
+                        if(me.president){
+                            instructionsBlink();
+                            instructions.innerHTML = "Please select the Player you want to investigate."
+                            for(var i=0;i<room.playingPlayers.length;i++){
+                                if(!room.playingPlayers[i].president && !room.playingPlayers[i].dead){
+                                    //Eligible for Execution
+                                    document.getElementById("player_"+(i+1)).style.backgroundColor = "lightgoldenrodyellow";
+                                    document.getElementById("player_"+(i+1)).onclick = function(){ investigate(room.playingPlayers[this.id.slice(7)-1].fascist,room.playingPlayers[this.id.slice(7)-1].name); } ;
+                                }
+                            }
+                        }
+                    }
+                }else if(room.state === "requestingVeto"){
+                    instructions.innerHTML = president + " is choosing to accept or decline the Veto Request by " + chancellor;
+                    if(me !== undefined){
+                        if(me.president){
+                            instructionsBlink();
+                            instructions.innerHTML = "Choose Ja to Accept or Nein to Decline the Veto Request.";
+                            var jaNeinCards = document.getElementById("jaNeinCards");
+                            var ja = document.getElementById("ja");
+                            var nein = document.getElementById("nein");
+                            jaNeinCards.style.display = "inline-block";
+
+                            ja.onclick = function(){
+                                socket.emit("vetoAnswer",true);
+                            };
+                            nein.onclick = function(){
+                                socket.emit("vetoAnswer",false);
+                            };
+                        }
+                    }
+                }
+                
+            });
+            
+            var chooseChancellor = function(idPlayer){
+                var id = idPlayer.slice(7);
+                socket.emit("chooseChancellor",id-1);
+            };
+            
+            var killPlayer = function(idPlayer){
+                var id = idPlayer.slice(7);
+                socket.emit("killPlayer",id-1);
+            };
+            
+            var selectPresident = function(idPlayer){
+                var id = idPlayer.slice(7);
+                socket.emit("selectPresident",id-1);
+            };
+            
+            var investigate = function(faction,name){
+                if(!faction){
+                    chatTextIngame.innerHTML += "<div>" + name + " is a Liberal.</div>";
+                    chatTextIngame.scrollTop = chatTextIngame.scrollHeight;
+                }else{
+                    chatTextIngame.innerHTML += "<div>" + name + " is a Fascist.</div>";
+                    chatTextIngame.scrollTop = chatTextIngame.scrollHeight;
+                }
+                
+                
+                socket.emit("investigate");
+            };
+            
+            var newGameOnClick = function(){
+                socket.emit("newGame");
+            };
+            
+            socket.on("editLeftNews",function(data){
+                document.getElementById("leftInnerText").innerHTML = data;
+            });
+            socket.on("editRightNews",function(data){
+                document.getElementById("rightInnerText").innerHTML = data;
+            });
+            
+            var instructionsBlink = function(){
+                var intrvl=0;
+                for(var nTimes=0;nTimes<3;nTimes++){
+                    intrvl += 200;
+                    setTimeout("document.getElementById('instructions').style.backgroundColor ='lightgoldenrodyellow';",intrvl);
+                    intrvl += 200;
+                    setTimeout("document.getElementById('instructions').style.backgroundColor='#D3D3D3';",intrvl);
+                   }
+            };
+            
+            socket.on("getScoreInfo",function(url,username,win,faction){
+               httpGetAsync(url,function(data){
+                  socket.emit("scoreInfo",data,username,win,faction); 
+               }); 
+            });
+            
+            socket.on("uploadScore",function (url){
+                //httpGetAsync(url,function(data){});
+                
+                httpGetAsync("http://dreamlo.com/lb/57b739d48af6030b20b12111/pipe",function(data){
+                    var leaderboardData = data;
+                    $.ajax({
+                        type:"POST",
+                        data:{text: leaderboardData,filename: "logfile.txt"}, 
+                        url: "writefile.php"
+                    }); 
+               })
+            });
+            
+            function httpGetAsync(theUrl, callback)
+            {
+                var xmlHttp = new XMLHttpRequest();
+                xmlHttp.onreadystatechange = function() { 
+                    if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                        callback(xmlHttp.responseText);
+                }
+                xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+                xmlHttp.send(null);
+            }
+        </script>
+        
+    </body>
+</html>
+
+
